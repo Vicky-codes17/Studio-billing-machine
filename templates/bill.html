@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Invoice #{{ invoice.invoice_no }} - {{ company.name }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="page a4">  
+    <!-- Watermark Logo (Center Background) -->
+    <div class="watermark-logo">
+      <img src="{{ url_for('static', filename='logo.png') }}" 
+           alt="Watermark" 
+           onerror="this.style.display='none'">
+    </div>
+    
+    <header class="company clearfix">
+      <!-- Small logo + Company name header -->
+      <div class="company-header">
+        <img src="{{ url_for('static', filename='logo.png') }}" 
+             alt="Logo" 
+             class="header-logo"
+             onerror="this.style.display='none'">
+        <div class="company-info">
+          <h2>{{ company.name }}</h2>
+          <div>{{ company.address.replace('\n','<br>')|safe }}</div>
+          <div><strong>📞 Phone:</strong> {{ company.phone }}</div>
+        </div>
+      </div>
+    </header>
+
+    <section class="invoice-info">
+      <h3>🧾 Invoice #{{ invoice.invoice_no }}</h3>
+      <div class="invoice-details">
+        <div><strong>📅 Date:</strong> {{ invoice.date.strftime('%B %d, %Y') if invoice.date else 'N/A' }}</div>
+        <div><strong>👤 Bill To:</strong> {{ invoice.customer_name }}</div>
+        {% if invoice.customer_phone %}
+        <div><strong>📱 Phone:</strong> {{ invoice.customer_phone }}</div>
+        {% endif %}
+      </div>
+    </section>
+
+    <table class="items">
+      <thead>
+        <tr>
+          <th>Description</th>
+          <th style="text-align: center;">Qty</th>
+          <th style="text-align: right;">Rate (₹)</th>
+          <th style="text-align: center;">Tax%</th>
+          <th style="text-align: right;">Total (₹)</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in items %}
+        <tr>
+          <td>{{ item.description }}</td>
+          <td style="text-align: center;">{{ item.qty }}</td>
+          <td style="text-align: right;">{{ '₹{:,.2f}'.format(item.rate) }}</td>
+          <td style="text-align: center;">{{ '{:.1f}%'.format(item.tax_percent) }}</td>
+          <td style="text-align: right;"><strong>{{ '₹{:,.2f}'.format(item.line_total) }}</strong></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div class="totals">
+      <div class="totals-line">
+        <span>Subtotal:</span>
+        <span>₹{{ '{:,.2f}'.format(subtotal|float) }}</span>
+      </div>
+      <div class="totals-line">
+        <span>Tax Amount:</span>
+        <span>₹{{ '{:,.2f}'.format(tax_total|float) }}</span>
+      </div>
+      <div class="grand-total">
+        <h3>💰 Grand Total: ₹{{ '{:,.2f}'.format(invoice.total) }}</h3>
+      </div>
+    </div>
+
+    {% if invoice.notes %}
+    <div class="notes">
+      <strong>📝 Notes:</strong> {{ invoice.notes }}
+    </div>
+    {% endif %}
+
+    <div class="actions">
+      <button onclick="window.print()" class="btn btn-primary">
+        🖨️ Print A4 Invoice
+      </button>
+      <a href="{{ url_for('thermal_preview', invoice_id=invoice.id) }}" class="btn btn-success">
+        🧾 Print Thermal Receipt
+      </a>
+      <a href="{{ url_for('download_pdf', invoice_id=invoice.id) }}" class="btn btn-secondary">
+        📄 Download PDF
+      </a>
+      <a href="{{ url_for('index') }}" class="btn btn-secondary">
+        ➕ Create New Invoice
+      </a>
+      <a href="{{ url_for('invoices_list') }}" class="btn btn-secondary">
+        📋 All Invoices
+      </a>
+    </div>
+
+    <footer class="invoice-footer">
+      <p style="text-align: center; color: var(--text-secondary); font-size: 0.875rem; margin-top: 2rem;">
+        Thank you for your business! 🙏
+      </p>
+    </footer>
+  </div>
+
+  <style>
+    /* Watermark Logo Styles */
+    .watermark-logo {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 1;
+      pointer-events: none;
+    }
+    
+    .watermark-logo img {
+      width: 400px;
+      height: auto;
+      opacity: 0.08;
+      filter: grayscale(100%);
+    }
+    
+    /* Header Logo Styles */
+    .company-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      position: relative;
+      z-index: 2;
+    }
+    
+    .header-logo {
+      width: 60px;
+      height: 60px;
+      object-fit: contain;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .company-info h2 {
+      margin: 0;
+      color: var(--primary-color);
+      font-size: 1.5rem;
+    }
+    
+    /* Ensure content is above watermark */
+    .invoice-info,
+    .items,
+    .totals,
+    .notes,
+    .actions {
+      position: relative;
+      z-index: 2;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(1px);
+    }
+    
+    .invoice-details {
+      display: grid;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+    
+    .invoice-details div {
+      padding: 0.25rem 0;
+    }
+    
+    .totals-line {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    .grand-total {
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 2px solid var(--primary-color);
+    }
+    
+    .grand-total h3 {
+      text-align: center;
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-size: 1.8rem;
+    }
+    
+    @media print {
+      .actions {
+        display: none !important;
+      }
+      
+      body {
+        background: white !important;
+      }
+      
+      .page {
+        box-shadow: none !important;
+        margin: 0 !important;
+      }
+      
+      .watermark-logo img {
+        opacity: 0.05;
+      }
+    }
+  </style>
+</body>
+</html>

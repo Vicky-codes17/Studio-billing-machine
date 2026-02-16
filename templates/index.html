@@ -1,0 +1,1349 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anand Digital Studio - Billing System</title>
+    <style>
+        :root {
+            --primary-color: #4f46e5;
+            --secondary-color: #7c3aed;
+            --success-color: #10b981;
+            --danger-color: #ef4444;
+            --warning-color: #f59e0b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            min-height: 100vh;
+            padding: 10px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        /* MOBILE-FIRST HEADER */
+        .header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            background: white;
+            padding: 8px;
+        }
+
+        .header-text {
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+            font-weight: 500;
+        }
+
+        .header-actions {
+            margin-top: 15px;
+        }
+
+        .header-actions .btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            padding: 10px 20px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .content {
+            padding: 20px;
+        }
+
+        /* MOBILE-OPTIMIZED Quick Menu */
+        .quick-menu {
+            background: linear-gradient(135deg, rgba(79, 70, 229, 0.1), rgba(124, 58, 237, 0.1));
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            border: 2px solid rgba(79, 70, 229, 0.2);
+        }
+
+        .quick-menu h3 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .menu-btn {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.8));
+            border: 2px solid rgba(79, 70, 229, 0.3);
+            border-radius: 12px;
+            padding: 15px 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            min-height: 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .menu-btn:active {
+            transform: scale(0.95);
+            background: rgba(79, 70, 229, 0.1);
+        }
+
+        .menu-btn .number {
+            background: var(--primary-color);
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 8px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .menu-btn div:last-child {
+            font-size: 12px;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        /* MOBILE-OPTIMIZED Form */
+        .form-container {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 14px;
+            display: block;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.9);
+            appearance: none;
+            -webkit-appearance: none;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        .form-row {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* MOBILE TABLE */
+        .items-section {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .items-section h3 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            font-size: 18px;
+            text-align: center;
+        }
+
+        .items-table-container {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            min-width: 600px;
+            font-size: 14px;
+        }
+
+        .items-table th,
+        .items-table td {
+            padding: 10px 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .items-table th {
+            background: var(--primary-color);
+            color: white;
+            font-weight: 600;
+            font-size: 12px;
+            position: sticky;
+            top: 0;
+        }
+
+        .total-display {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(79, 70, 229, 0.1);
+            border-radius: 10px;
+        }
+
+        .total-amount {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-align: center;
+        }
+
+        /* MOBILE BUTTONS */
+        .btn {
+            padding: 15px 20px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: center;
+            width: 100%;
+            touch-action: manipulation;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-success {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+
+        .actions {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        /* MOBILE MODAL */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: white;
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 15px;
+            width: 95%;
+            max-width: 500px;
+            max-height: 85vh;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 18px;
+        }
+
+        .close {
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            background: none;
+            padding: 5px;
+        }
+
+        #modalContent {
+            padding: 20px;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+
+        .service-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+
+        .service-item {
+            background: linear-gradient(135deg, rgba(79, 70, 229, 0.1), rgba(124, 58, 237, 0.1));
+            border: 2px solid rgba(79, 70, 229, 0.2);
+            border-radius: 12px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .service-item:active {
+            transform: scale(0.98);
+            background: rgba(79, 70, 229, 0.2);
+        }
+
+        .service-item h4 {
+            margin: 0 0 8px 0;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .service-item .price {
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .custom-item-form {
+            max-width: 100%;
+        }
+
+        .custom-item-form .form-row {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        /* FLASH MESSAGES - Mobile Optimized */
+        .flash-container {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            z-index: 3000;
+        }
+
+        .flash-message {
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 4px solid;
+            backdrop-filter: blur(15px);
+        }
+
+        .flash-message.flash-success {
+            background: rgba(16, 185, 129, 0.15);
+            border-left-color: #10b981;
+            color: #065f46;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .flash-message.flash-error {
+            background: rgba(239, 68, 68, 0.15);
+            border-left-color: #ef4444;
+            color: #991b1b;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .flash-message.flash-warning {
+            background: rgba(245, 158, 11, 0.15);
+            border-left-color: #f59e0b;
+            color: #92400e;
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+
+        .flash-message.flash-info {
+            background: rgba(59, 130, 246, 0.15);
+            border-left-color: #3b82f6;
+            color: #1e40af;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        .flash-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .flash-icon {
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .flash-text {
+            flex: 1;
+        }
+
+        .flash-title {
+            font-weight: 700;
+            margin-bottom: 3px;
+            font-size: 14px;
+        }
+
+        .flash-close {
+            font-size: 18px;
+            color: rgba(0, 0, 0, 0.5);
+            cursor: pointer;
+            flex-shrink: 0;
+            padding: 5px;
+        }
+
+        /* Service Category Header (Yellow box like rate boxes) */
+        .service-category-header {
+            background: linear-gradient(135deg, rgba(255, 235, 59, 0.3), rgba(255, 193, 7, 0.2));
+            border: 2px solid rgba(255, 193, 7, 0.5);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            grid-column: 1 / -1;
+            /* Span full width */
+            position: relative;
+        }
+
+        .service-category-header:hover {
+            background: linear-gradient(135deg, rgba(255, 235, 59, 0.4), rgba(255, 193, 7, 0.3));
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 193, 7, 0.25);
+        }
+
+        .service-category-header:active {
+            transform: scale(0.98);
+            background: linear-gradient(135deg, rgba(255, 235, 59, 0.5), rgba(255, 193, 7, 0.4));
+        }
+
+        .service-category-header h3 {
+            margin: 0;
+            color: #b8860b;
+            font-size: 16px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        /* Expanded state for category headers */
+        .service-category-header.expanded {
+            background: linear-gradient(135deg, rgba(255, 235, 59, 0.5), rgba(255, 193, 7, 0.4));
+            border-color: rgba(255, 193, 7, 0.7);
+        }
+
+        .service-category-header.expanded h3::after {
+            content: " ▼";
+            font-size: 12px;
+        }
+
+        .service-category-header h3::after {
+            content: " ▶";
+            font-size: 12px;
+            transition: transform 0.3s ease;
+        }
+
+        /* Subitems container with smooth animation */
+        .subitems-container {
+            display: none;
+            margin-bottom: 15px;
+            animation: slideDown 0.3s ease-out;
+            grid-column: 1 / -1;
+            /* Span full width */
+        }
+
+        .subitems-container.show {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Service items in expanded categories */
+        .service-item.subitem {
+            background: linear-gradient(135deg, rgba(76, 175, 80, 0.1), rgba(139, 195, 74, 0.1));
+            border: 2px solid rgba(76, 175, 80, 0.3);
+            margin-bottom: 0;
+        }
+
+        .service-item.subitem:hover {
+            background: linear-gradient(135deg, rgba(76, 175, 80, 0.2), rgba(139, 195, 74, 0.2));
+            border-color: rgba(76, 175, 80, 0.5);
+        }
+
+        .service-item.subitem:active {
+            background: linear-gradient(135deg, rgba(76, 175, 80, 0.3), rgba(139, 195, 74, 0.3));
+        }
+
+        /* MOBILE RESPONSIVE */
+        @media (max-width: 767px) {
+            .header {
+                padding: 15px;
+            }
+
+            .logo {
+                width: 70px;
+                height: 70px;
+            }
+
+            .header h1 {
+                font-size: 20px;
+            }
+
+            .header p {
+                font-size: 14px;
+            }
+
+            .content {
+                padding: 15px;
+            }
+
+            .menu-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+
+            .form-row {
+                flex-direction: column;
+            }
+
+            .form-row .form-group {
+                flex: 1;
+            }
+
+            .total-display {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .service-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .flash-container {
+                top: 10px;
+                right: 10px;
+                left: auto;
+                max-width: 300px;
+            }
+        }
+
+        /* TABLET RESPONSIVE */
+        @media (min-width: 768px) {
+            body {
+                padding: 20px;
+            }
+
+            .header {
+                padding: 30px;
+            }
+
+            .logo-container {
+                flex-direction: row;
+                gap: 25px;
+            }
+
+            .logo {
+                width: 100px;
+                height: 100px;
+            }
+
+            .header-text {
+                text-align: left;
+                flex: 1;
+            }
+
+            .header h1 {
+                font-size: 28px;
+            }
+
+            .header p {
+                font-size: 16px;
+            }
+
+            .content {
+                padding: 30px;
+            }
+
+            .menu-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 15px;
+            }
+
+            .form-row {
+                flex-direction: row;
+            }
+
+            .form-row .form-group {
+                flex: 1;
+            }
+
+            .total-display {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .service-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .flash-container {
+                top: 20px;
+                right: 20px;
+                left: auto;
+                max-width: 400px;
+            }
+        }
+
+        /* DESKTOP RESPONSIVE */
+        @media (min-width: 1024px) {
+            .header {
+                padding: 40px;
+            }
+
+            .logo {
+                width: 120px;
+                height: 120px;
+            }
+
+            .header h1 {
+                font-size: 36px;
+            }
+
+            .header p {
+                font-size: 18px;
+            }
+
+            .content {
+                padding: 40px;
+            }
+
+            .menu-grid {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            }
+
+            .menu-btn {
+                padding: 20px;
+                min-height: 100px;
+            }
+
+            .menu-btn .number {
+                width: 35px;
+                height: 35px;
+                font-size: 16px;
+                margin-bottom: 10px;
+            }
+
+            .menu-btn div:last-child {
+                font-size: 14px;
+            }
+
+            .modal-content {
+                width: 90%;
+                max-width: 800px;
+            }
+
+            .service-grid {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            }
+
+            .custom-item-form .form-row {
+                flex-direction: row;
+                gap: 20px;
+            }
+
+            .items-table {
+                font-size: 16px;
+                min-width: auto;
+            }
+
+            .items-table th,
+            .items-table td {
+                padding: 12px;
+            }
+
+            .btn {
+                width: auto;
+                padding: 12px 25px;
+                font-size: 14px;
+            }
+        }
+
+        /* TOUCH OPTIMIZATIONS */
+        @media (hover: none) and (pointer: coarse) {
+            .menu-btn:hover {
+                transform: none;
+            }
+
+            .service-item:hover {
+                transform: none;
+            }
+
+            .btn:hover {
+                transform: none;
+            }
+        }
+
+        /* DARK MODE SUPPORT */
+        @media (prefers-color-scheme: dark) {
+            .form-control {
+                background: rgba(255, 255, 255, 0.95);
+            }
+        }
+
+        /* HIGH CONTRAST MODE */
+        @media (prefers-contrast: high) {
+            .container {
+                border: 2px solid #000;
+            }
+
+            .menu-btn {
+                border: 2px solid var(--primary-color);
+            }
+        }
+
+        /* ANIMATION OPTIMIZATIONS */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="flash-container" id="flashContainer">
+        {% for category, message in messages %}
+        <div class="flash-message flash-{{ category }}" onclick="dismissMessage(this)">
+            <div class="flash-content">
+                <span class="flash-icon">
+                    {% if category == 'success' %}✅
+                    {% elif category == 'error' %}❌
+                    {% elif category == 'warning' %}⚠️
+                    {% else %}ℹ️{% endif %}
+                </span>
+                <div class="flash-text">
+                    <div class="flash-title">
+                        {% if category == 'success' %}Success!
+                        {% elif category == 'error' %}Error!
+                        {% elif category == 'warning' %}Warning!
+                        {% else %}Info{% endif %}
+                    </div>
+                    <div>{{ message }}</div>
+                </div>
+            </div>
+            <span class="flash-close">&times;</span>
+        </div>
+        {% endfor %}
+    </div>
+
+    <script>
+        function dismissMessage(element) {
+            element.style.animation = 'fadeOut 0.3s ease-out forwards';
+            setTimeout(() => {
+                element.remove();
+                const container = document.getElementById('flashContainer');
+                if (container && container.children.length === 0) {
+                    container.remove();
+                }
+            }, 300);
+        }
+
+        setTimeout(() => {
+            document.querySelectorAll('.flash-message').forEach(msg => {
+                dismissMessage(msg);
+            });
+        }, 5000);
+    </script>
+    {% endif %}
+    {% endwith %}
+
+    <div class="container">
+        <div class="header">
+            <div class="logo-container">
+                <img src="{{ url_for('static', filename='logo.png') }}" alt="Anand Digital Studio Logo" class="logo"
+                    onerror="this.style.display='none'">
+                <div class="header-text">
+                    <h1>📸 Anand Digital Studio</h1>
+                    <p>Professional Photography & Digital Services</p>
+                </div>
+            </div>
+            <div class="header-actions">
+                <a href="{{ url_for('invoices_list') }}" class="btn">
+                    📋 View All Invoices
+                </a>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="quick-menu">
+                <h3>🚀 Quick Service Menu</h3>
+                <div class="menu-grid">
+                    <div class="menu-btn" onclick="openServiceModal(1)" data-key="1">
+                        <div class="number">1</div>
+                        <div>Studio Take Charge</div>
+                    </div>
+                    <div class="menu-btn" onclick="openServiceModal(2)" data-key="2">
+                        <div class="number">2</div>
+                        <div>Passport & Stamp</div>
+                    </div>
+                    <div class="menu-btn" onclick="openServiceModal(3)" data-key="3">
+                        <div class="number">3</div>
+                        <div>Photo Sizes</div>
+                    </div>
+                    <div class="menu-btn" onclick="openServiceModal(4)" data-key="4">
+                        <div class="number">4</div>
+                        <div>Whatsapp & Printing</div>
+                    </div>
+                    <div class="menu-btn" onclick="openServiceModal(5)" data-key="5">
+                        <div class="number">5</div>
+                        <div>Programs Outdoor</div>
+                    </div>
+                    <div class="menu-btn" onclick="openServiceModal(6)" data-key="6">
+                        <div class="number">6</div>
+                        <div>Lamination</div>
+                    </div>
+                    <div class="menu-btn" onclick="openServiceModal(7)" data-key="7">
+                        <div class="number">7</div>
+                        <div>Custom Item</div>
+                    </div>
+                    <div class="menu-btn" onclick="window.open('{{ url_for('test_printer') }}', '_blank');" data-key="t">
+                        <div class="number">T</div>
+                        <div>Test Printer</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-container">
+                <form id="billingForm" method="POST" action="{{ url_for('save') }}">
+                    <div class="form-group">
+                        <label for="customer_name">👤 Customer Name *</label>
+                        <input type="text" id="customer_name" name="customer_name" class="form-control" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="customer_phone">📞 Phone Number</label>
+                            <input type="tel" id="customer_phone" name="customer_phone" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="notes">📝 Notes</label>
+                            <textarea id="notes" name="notes" class="form-control" rows="3"
+                                placeholder="Additional notes..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="items-section">
+                        <h3>📋 Invoice Items</h3>
+                        <div class="items-table-container">
+                            <table class="items-table">
+                                <thead>
+                                    <tr>
+                                        <th>Description</th>
+                                        <th>Qty</th>
+                                        <th>Rate (₹)</th>
+                                        <th>Tax (%)</th>
+                                        <th>Total (₹)</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="itemsTable">
+                                    <!-- Items will be added here -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="total-display">
+                            <button type="button" class="btn btn-primary" onclick="addCustomItem()">
+                                ➕ Add Custom Item
+                            </button>
+                            <div class="total-amount">Total: ₹<span id="grandTotal">0.00</span></div>
+                        </div>
+                    </div>
+
+                    <input type="hidden" name="items_json" id="items_json">
+
+                    <div class="actions">
+                        <button type="submit" class="btn btn-primary">
+                            💾 Save Invoice
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Service Modal -->
+    <div id="serviceModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Select Service</h2>
+                <button class="close" onclick="closeModal()">&times;</button>
+            </div>
+            <div id="modalContent">
+                <!-- Service options will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let items = [];
+        let itemCounter = 0;
+
+        // Service data (same as before)
+        const services = {
+            1: {
+                title: "Studio Take Charge",
+                items: [
+                    { name: "Studio Sitting Charges", price: 200 }
+                ]
+            },
+            2: {
+                title: "Passport & Stamp Size",
+                items: [
+                    { name: "Passport Size - 8 copies", price: 70 },
+                    { name: "Passport Size - 16 copies", price: 100 },
+                    { name: "Passport Size - 32 copies", price: 120 },
+                    { name: "Stamp Size - 20 copies", price: 75 },
+                    { name: "Stamp Size - 40 copies", price: 100 },
+                    { name: "Max 6x4 - 1 copy", price: 50 },
+                    { name: "Max 6x4 - 2 copies", price: 100 }
+                ]
+            },
+            3: {
+                title: "Photo Sizes",
+                items: [
+                    { name: "8x6 - 1 copies", price: 100 },
+                    { name: "8x6 - 3 copies", price: 250 },
+                    { name: "5x7 - 1 copies", price: 75 },
+                    { name: "8x12 - 1 copies", price: 350 },
+                    { name: "12x10 (Finishing Charges)", price: 550 },
+                    { name: "15x12 (Finishing Charges)", price: 750 },
+                    { name: "12x18 (Finishing Charges)", price: 850 },
+                    { name: "20x16 (Finishing Charges)", price: 1500 },
+                    { name: "12x36 (Finishing Charges)", price: 1200 },
+                    { name: "24x20 (Finishing Charges)", price: 3500 },
+                    { name: "30x40 (Finishing Charges)", price: 4500 },
+                ]
+            },
+            4: {
+                title: "Whatsapp & Printing",
+                items: [
+                    { name: "Additional Phone - 1 copies", price: 50 },
+                    { name: "Additional Phone - 2 copies", price: 60 },
+                    { name: "Extra copies (each)", price: 30 }
+                ]
+            },
+            5: {
+                title: "Programs Outdoor",
+                items: [
+                    {
+                        name: "Maxi",
+                        price: null,
+                        subitems: [
+                            { name: "Maxi (Each copies)", price: 50 },
+                            // { name: "Maxi - 5 Copies", price: 200 },
+                            // { name: "Maxi - 10 Copies", price: 400 }
+                        ]
+                    },
+                    {
+                        name: "Event Coverage",
+                        price: null,
+                        subitems: [
+                            { name: "Pre-Wedding Photo", price: 2000 },
+                            { name: "Groom & Bride Photo", price: 15000 },
+                            { name: "Groom & Bride Video", price: 15000 },
+                            { name: "Wall TV", price: 12000 }
+                        ]
+                    },
+                    {
+                        name: "Wedding Coverage",
+                        price: null,
+                        subitems: [
+                            { name: "Drone", price: 10000 },
+                            { name: "Photo Coverage", price: 8000 },
+                            { name: "Video Coverage", price: 12000 },
+                            { name: "Pre-Wedding Photography", price: 12000 }
+                        ]
+                    },
+                    {
+                        name: "Program Documentation",
+                        price: null,
+                        subitems: [
+                            { name: "CAMERA - NIKON", price: 8000 },
+                        ]
+                    }
+                ]
+            },
+            6: {
+                title: "Lamination",
+                items: [
+                    { name: "12x10 - Lamination ", price: 300 },
+                    { name: "15x12 - Lamination ", price: 750 },
+                    { name: "12x18 - Lamination ", price: 850 },
+                    { name: "20x16 - Lamination", price: 1000 },
+                    { name: "12x36 - Lamination", price: 800 },
+                    { name: "24x20 - Lamination", price: 1500 },
+                    { name: "30x40 - Lamination", price: 2000 }
+                ]
+            }
+        };
+
+        // Touch-optimized event handling
+        let touchStartY = 0;
+        let touchEndY = 0;
+
+        // Keyboard shortcuts (disabled on mobile)
+        if (window.innerWidth > 768) {
+            document.addEventListener('keydown', function (e) {
+                const activeElement = document.activeElement;
+                const isInputField = activeElement && (
+                    activeElement.tagName === 'INPUT' ||
+                    activeElement.tagName === 'TEXTAREA' ||
+                    activeElement.contentEditable === 'true'
+                );
+
+                if (!isInputField) {
+                    const key = e.key;
+                    if (key >= '1' && key <= '7') {  // ✅ Now handles 1-7
+                        e.preventDefault();
+                        openServiceModal(parseInt(key));
+                    }
+                }
+            });
+        }
+
+        function openServiceModal(serviceNumber) {
+            console.log(`Opening service modal for: ${serviceNumber}`); // ✅ Add debug
+            
+            const modal = document.getElementById('serviceModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalContent = document.getElementById('modalContent');
+
+            if (serviceNumber === 7) {
+                console.log('Loading custom item form'); // ✅ Add debug
+                modalTitle.textContent = 'Add Custom Item';
+                modalContent.innerHTML = `
+                    <div class="custom-item-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <input type="text" placeholder="Item Description" id="customDesc" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <input type="number" placeholder="Quantity" id="customQty" class="form-control" value="1" min="1">
+                            </div>
+                            <div class="form-group">
+                                <input type="number" placeholder="Rate (₹)" id="customRate" class="form-control" min="0" step="0.01">
+                            </div>
+                            <div class="form-group">
+                                <input type="number" placeholder="Tax %" id="customTax" class="form-control" value="0" min="0" max="100">
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-success" onclick="addCustomItemFromModal()">Add Item</button>
+                    </div>
+                `;
+            } else {
+                // ✅ This handles services 1-6
+                const service = services[serviceNumber];
+                if (!service) {
+                    console.error(`Service ${serviceNumber} not found`);
+                    return;
+                }
+                
+                modalTitle.textContent = service.title;
+
+                let html = '<div class="service-grid">';
+                service.items.forEach((item, index) => {
+                    if (item.subitems) {
+                        // Clickable category header (yellow box like rate boxes)
+                        html += `
+                            <div class="service-category-header" onclick="toggleSubitems(${serviceNumber}, ${index})" id="category-${serviceNumber}-${index}">
+                                <h3>📂 ${item.name}</h3>
+                            </div>
+                            <div id="subitems-${serviceNumber}-${index}" class="subitems-container">
+                        `;
+                        // Show all subitems as big buttons
+                        item.subitems.forEach(subitem => {
+                            html += `
+                                <div class="service-item subitem" onclick="addPredefinedItem('${subitem.name.replace(/'/g, "\\'")}', ${subitem.price})">
+                                    <h4>${subitem.name}</h4>
+                                    <div class="price">₹${subitem.price}</div>
+                                </div>
+                            `;
+                        });
+                        html += '</div>';
+                    } else {
+                        // Regular item
+                        html += `
+                            <div class="service-item" onclick="addPredefinedItem('${item.name.replace(/'/g, "\\'")}', ${item.price})">
+                                <h4>${item.name}</h4>
+                                <div class="price">₹${item.price}</div>
+                            </div>
+                        `;
+                    }
+                });
+                html += '</div>';
+
+                modalContent.innerHTML = html;
+            }
+
+            modal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Updated toggle function with smooth animation
+        function toggleSubitems(serviceNumber, itemIndex) {
+            const container = document.getElementById(`subitems-${serviceNumber}-${itemIndex}`);
+            const categoryHeader = document.getElementById(`category-${serviceNumber}-${itemIndex}`);
+            
+            if (container.classList.contains('show')) {
+                // Hide subitems
+                container.classList.remove('show');
+                setTimeout(() => {
+                    container.style.display = 'none';
+                }, 300);
+                categoryHeader.classList.remove('expanded');
+            } else {
+                // Show subitems
+                container.style.display = 'grid';
+                setTimeout(() => {
+                    container.classList.add('show');
+                }, 10);
+                categoryHeader.classList.add('expanded');
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('serviceModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        function addPredefinedItem(description, rate) {
+            addItemToTable(description, 1, rate, 0);
+            closeModal();
+        }
+
+        function addCustomItemFromModal() {
+            const desc = document.getElementById('customDesc').value;
+            const qty = parseInt(document.getElementById('customQty').value) || 1;
+            const rate = parseFloat(document.getElementById('customRate').value) || 0;
+            const tax = parseFloat(document.getElementById('customTax').value) || 0;
+
+            if (desc && rate > 0) {
+                addItemToTable(desc, qty, rate, tax);
+                closeModal();
+            } else {
+                alert('Please fill in all required fields!');
+            }
+        }
+
+        function addCustomItem() {
+            openServiceModal(7);
+        }
+
+        function addItemToTable(description, quantity, rate, taxRate = 0) {
+            const item = {
+                id: ++itemCounter,
+                description,
+                quantity,
+                rate,
+                taxRate
+            };
+
+            items.push(item);
+            renderItemsTable();
+            updateTotal();
+        }
+
+        function renderItemsTable() {
+            const tbody = document.getElementById('itemsTable');
+            tbody.innerHTML = '';
+
+            items.forEach(item => {
+                const lineTotal = item.quantity * item.rate;
+                const taxAmount = (lineTotal * item.taxRate) / 100;
+                const finalAmount = lineTotal + taxAmount;
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.description}</td>
+                    <td>${item.quantity}</td>
+                    <td>₹${item.rate.toFixed(2)}</td>
+                    <td>${item.taxRate}%</td>
+                    <td>₹${finalAmount.toFixed(2)}</td>
+                    <td>
+                        <button type="button" class="btn btn-danger" onclick="removeItem(${item.id})" style="width: auto; padding: 8px 12px; font-size: 12px;">
+                            🗑️
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function removeItem(itemId) {
+            items = items.filter(item => item.id !== itemId);
+            renderItemsTable();
+            updateTotal();
+        }
+
+        function updateTotal() {
+            const total = items.reduce((sum, item) => {
+                const lineTotal = item.quantity * item.rate;
+                const taxAmount = (lineTotal * item.taxRate) / 100;
+                return sum + lineTotal + taxAmount;
+            }, 0);
+
+            document.getElementById('grandTotal').textContent = total.toFixed(2);
+        }
+
+        // Form submission
+        document.getElementById('billingForm').addEventListener('submit', function (e) {
+            if (items.length === 0) {
+                e.preventDefault();
+                alert('Please add at least one item to the invoice!');
+                return;
+            }
+
+            document.getElementById('items_json').value = JSON.stringify(items);
+        });
+
+        // Close modal when clicking outside
+        window.onclick = function (event) {
+            const modal = document.getElementById('serviceModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🖨️ Test Printer - {{ company.name }}</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            margin: 0;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .btn {
+            background: #4f46e5;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            margin: 10px;
+        }
+        
+        .btn:hover {
+            background: #3730a3;
+            transform: translateY(-2px);
+        }
+        
+        .btn-danger {
+            background: #dc2626;
+        }
+        
+        .btn-danger:hover {
+            background: #991b1b;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .alert-success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #10b981;
+        }
+        
+        .alert-error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #dc2626;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🖨️ Test Thermal Printer</h1>
+            <p>Test your thermal printer connection</p>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'success' if category == 'success' else 'error' }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST">
+            <div class="form-group">
+                <label>Printer Vendor ID (Hex):</label>
+                <input type="text" name="vendor_id" value="0x09c5" placeholder="0x09c5">
+            </div>
+            
+            <div class="form-group">
+                <label>Printer Product ID (Hex):</label>
+                <input type="text" name="product_id" value="0x588e" placeholder="0x588e">
+            </div>
+            
+            <div class="form-group">
+                <label>Test Message:</label>
+                <input type="text" name="test_message" value="Hello from Thermal Printer!" placeholder="Enter test message">
+            </div>
+            
+            <button type="submit" class="btn">🖨️ Test Print</button>
+            <a href="{{ url_for('index') }}" class="btn btn-danger">← Back to Billing</a>
+        </form>
+        
+        <div style="margin-top: 30px; padding: 20px; background: #f3f4f6; border-radius: 10px;">
+            <h3>📝 Printer Setup Instructions:</h3>
+            <ol>
+                <li>Connect your thermal printer via USB</li>
+                <li>Find your printer's Vendor ID and Product ID using <code>lsusb</code> command</li>
+                <li>Update the IDs above if different</li>
+                <li>Click "Test Print" to verify connection</li>
+            </ol>
+            
+            <h4>🔍 Find Printer IDs:</h4>
+            <p>Run this command in terminal:</p>
+            <code style="background: #000; color: #00ff00; padding: 5px; border-radius: 3px;">lsusb</code>
+            <p>Look for your printer in the output.</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Print Receipt - Invoice #{{ invoice.invoice_no }}</title>
+    <style>
+        :root {
+            --primary-color: #4f46e5;
+            --success-color: #10b981;
+            --danger-color: #ef4444;
+            --warning-color: #f59e0b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--primary-color) 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            background: rgba(79, 70, 229, 0.1);
+            border-left: 4px solid var(--primary-color);
+            color: #333;
+        }
+
+        .print-result {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .print-result.success {
+            background: rgba(16, 185, 129, 0.1);
+            border-left: 4px solid var(--success-color);
+            color: #065f46;
+        }
+
+        .print-result.error {
+            background: rgba(239, 68, 68, 0.1);
+            border-left: 4px solid var(--danger-color);
+            color: #991b1b;
+        }
+
+        .preview-container {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .preview-section {
+            width: 192px;           /* 48mm ≈ 192px */
+            min-height: 400px;
+            max-width: 192px;
+            background: white;
+            color: black;
+            padding: 8px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 9px;         /* Smaller font for 48mm */
+            line-height: 1.3;
+            white-space: pre-line;
+            border: 2px solid #ddd;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .preview-section::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100px;           /* Smaller watermark for 48mm */
+            height: 100px;
+            background: url('{{ url_for("static", filename="logo.png") }}') no-repeat center;
+            background-size: contain;
+            opacity: 0.06;
+            z-index: 0;
+        }
+
+        .preview-content {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            word-wrap: break-word;
+        }
+
+        .preview-info {
+            flex: 1;
+            padding-left: 20px;
+        }
+
+        .preview-specs {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .print-options {
+            background: rgba(79, 70, 229, 0.05);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        .option-group {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .option-group h4 {
+            margin-bottom: 15px;
+            color: #333;
+            font-size: 16px;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 5px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary { background: var(--primary-color); color: white; }
+        .btn-success { background: var(--success-color); color: white; }
+        .btn-warning { background: var(--warning-color); color: white; }
+        .btn-danger { background: var(--danger-color); color: white; }
+        .btn-secondary { background: #6b7280; color: white; }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e1e5e9;
+            border-radius: 6px;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            outline: none;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .radio-option:hover {
+            background: rgba(79, 70, 229, 0.05);
+        }
+
+        .hidden { display: none; }
+
+        .device-item {
+            padding: 10px;
+            border: 1px solid #ddd;
+            margin: 5px 0;
+            border-radius: 6px;
+            cursor: pointer;
+            background: #f9f9f9;
+        }
+
+        .device-item:hover {
+            background: #e3f2fd;
+            border-color: var(--primary-color);
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-connected { background: var(--success-color); }
+        .status-disconnected { background: var(--danger-color); }
+        .status-pairing { background: var(--warning-color); }
+
+        @media (max-width: 768px) {
+            .preview-container {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .preview-section {
+                width: 100%;
+                max-width: 250px;
+                margin: 0 auto;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+
+            .form-row {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🖨️ Thermal Printer (48mm) - Invoice #{{ invoice.invoice_no }}</h1>
+        </div>
+        
+        <div class="content">
+            <div class="alert">
+                <strong>📋 Receipt Preview:</strong> 48mm thermal paper format with Bluetooth connectivity.
+            </div>
+
+            <div class="print-result" id="printResult">
+                <div id="printMessage"></div>
+            </div>
+
+            <div class="preview-container">
+                <div class="preview-section">
+                    <div class="preview-content">{{ company.name }}
+{{ company.address }}
+Ph: {{ company.phone }}
+========================
+Inv: #{{ invoice.invoice_no }}
+Date: {{ invoice.date.strftime('%d/%m/%y %H:%M') }}
+Cust: {{ invoice.customer_name }}
+{% if invoice.customer_phone %}Ph: {{ invoice.customer_phone }}{% endif %}
+========================
+ITEMS:
+{% for item in items %}{{ item.description }}
+{{ item.quantity }} x {{ "%.2f"|format(item.rate) }}
+= Rs.{{ "%.2f"|format(item.line_total) }}
+{% endfor %}
+------------------------
+Subtotal: {{ "%.2f"|format(invoice.subtotal) }}{% if invoice.tax_amount > 0 %}
+Tax: Rs.{{ "%.2f"|format(invoice.tax_amount) }}{% endif %}
+
+TOTAL: Rs.{{ "%.2f"|format(invoice.grand_total) }}
+========================{% if invoice.notes %}
+Notes: {{ invoice.notes }}
+------------------------{% endif %}
+Thank you!
+Visit again!
+{{ invoice.date.strftime('%d/%m/%y %H:%M') }}
+
+
+</div>
+                </div>
+
+                <div class="preview-info">
+                    <h4>📏 48mm Thermal Receipt</h4>
+                    <div class="preview-specs">
+                        <div><strong>Size:</strong> 48mm x Auto height</div>
+                        <div><strong>Paper:</strong> Thermal paper roll (48mm)</div>
+                        <div><strong>Font:</strong> Monospace, 9px</div>
+                        <div><strong>Characters:</strong> ~24 chars per line</div>
+                        <div><strong>Best for:</strong> Compact receipts, mobile POS</div>
+                    </div>
+                    
+                    <button onclick="printReceipt()" class="btn btn-success" id="printBtn">
+                        🖨️ Print Receipt
+                    </button>
+                    <a href="{{ url_for('view_invoice', invoice_id=invoice.id) }}" class="btn btn-secondary">
+                        ← Back to Invoice
+                    </a>
+                </div>
+            </div>
+
+            <div class="print-options">
+                <h3>🖨️ Printer Connection</h3>
+                
+                <div class="option-group">
+                    <h4>📡 Connection Type</h4>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="printer_type" value="bluetooth" checked onchange="changePrinterType()"> 
+                            📱 Bluetooth Printer
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="printer_type" value="usb" onchange="changePrinterType()"> 
+                            🔌 USB Thermal Printer
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Bluetooth Options -->
+                <div class="option-group" id="bluetoothOptions">
+                    <h4>📱 Bluetooth Pairing</h4>
+                    <div class="form-row">
+                        <button onclick="scanBluetoothDevices()" class="btn btn-primary">
+                            🔍 Scan Devices
+                        </button>
+                        <div id="connectionStatus">
+                            <span class="status-indicator status-disconnected"></span>
+                            Not Connected
+                        </div>
+                    </div>
+                    
+                    <div id="bluetoothDevices"></div>
+                    
+                    <div id="pairingSection" class="hidden">
+                        <h5>🔐 Device Pairing</h5>
+                        <input type="text" id="deviceAddress" placeholder="Device MAC Address" class="form-control" readonly>
+                        <input type="password" id="pairingPin" placeholder="Enter pairing PIN (usually 0000 or 1234)" class="form-control">
+                        <button onclick="pairDevice()" class="btn btn-warning">
+                            🔗 Pair Device
+                        </button>
+                    </div>
+                </div>
+
+                <!-- USB Options -->
+                <div class="option-group hidden" id="usbOptions">
+                    <h4>🔌 USB Printer Settings</h4>
+                    <div class="form-row">
+                        <input type="text" id="usbVendorId" placeholder="Vendor ID (e.g., 09c5)" class="form-control">
+                        <input type="text" id="usbProductId" placeholder="Product ID (e.g., 588e)" class="form-control">
+                    </div>
+                    <button onclick="testUSBConnection()" class="btn btn-warning">
+                        🧪 Test USB Connection
+                    </button>
+                </div>
+
+                <div class="option-group">
+                    <button onclick="testPrinter()" class="btn btn-warning">
+                        🧪 Test Print
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedDevice = null;
+        let connectionStatus = 'disconnected';
+
+        function changePrinterType() {
+            const printerType = document.querySelector('input[name="printer_type"]:checked').value;
+            
+            document.getElementById('bluetoothOptions').classList.toggle('hidden', printerType !== 'bluetooth');
+            document.getElementById('usbOptions').classList.toggle('hidden', printerType !== 'usb');
+        }
+
+        function showResult(success, message) {
+            const resultDiv = document.getElementById('printResult');
+            const messageDiv = document.getElementById('printMessage');
+            
+            resultDiv.className = 'print-result ' + (success ? 'success' : 'error');
+            messageDiv.innerHTML = message;
+            resultDiv.style.display = 'block';
+            
+            setTimeout(() => {
+                resultDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        function updateConnectionStatus(status, message) {
+            const statusDiv = document.getElementById('connectionStatus');
+            const indicator = statusDiv.querySelector('.status-indicator');
+            
+            indicator.className = `status-indicator status-${status}`;
+            statusDiv.innerHTML = `<span class="status-indicator status-${status}"></span>${message}`;
+            connectionStatus = status;
+        }
+
+        async function scanBluetoothDevices() {
+            const button = event.target;
+            const originalText = button.textContent;
+            button.textContent = '🔍 Scanning...';
+            button.disabled = true;
+            
+            try {
+                const response = await fetch('/scan_bluetooth', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                const data = await response.json();
+                const devicesDiv = document.getElementById('bluetoothDevices');
+                
+                if (data.success && data.devices.length > 0) {
+                    let html = '<h5>📱 Found Devices:</h5>';
+                    data.devices.forEach(device => {
+                        html += `
+                            <div class="device-item" onclick="selectDevice('${device.address}', '${device.name}')">
+                                <strong>${device.name || 'Unknown Device'}</strong><br>
+                                <small>MAC: ${device.address}</small>
+                            </div>
+                        `;
+                    });
+                    devicesDiv.innerHTML = html;
+                    showResult(true, `Found ${data.devices.length} Bluetooth device(s)`);
+                } else {
+                    devicesDiv.innerHTML = '<p>No Bluetooth devices found. Make sure your printer is discoverable.</p>';
+                    showResult(false, 'No devices found. Ensure printer is in pairing mode.');
+                }
+            } catch (error) {
+                showResult(false, `Scan failed: ${error.message}`);
+            } finally {
+                button.textContent = originalText;
+                button.disabled = false;
+            }
+        }
+
+        function selectDevice(address, name) {
+            selectedDevice = { address, name };
+            document.getElementById('deviceAddress').value = address;
+            document.getElementById('pairingSection').classList.remove('hidden');
+            
+            // Highlight selected device
+            document.querySelectorAll('.device-item').forEach(item => {
+                item.style.backgroundColor = '#f9f9f9';
+                item.style.borderColor = '#ddd';
+            });
+            event.target.style.backgroundColor = '#e3f2fd';
+            event.target.style.borderColor = 'var(--primary-color)';
+            
+            showResult(true, `Selected: ${name} (${address})`);
+        }
+
+        async function pairDevice() {
+            if (!selectedDevice) {
+                showResult(false, 'Please select a device first');
+                return;
+            }
+            
+            const pin = document.getElementById('pairingPin').value;
+            if (!pin) {
+                showResult(false, 'Please enter pairing PIN');
+                return;
+            }
+            
+            updateConnectionStatus('pairing', 'Pairing...');
+            
+            try {
+                const response = await fetch('/pair_bluetooth', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        address: selectedDevice.address,
+                        pin: pin
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    updateConnectionStatus('connected', `Connected to ${selectedDevice.name}`);
+                    showResult(true, `✅ Successfully paired with ${selectedDevice.name}`);
+                    document.getElementById('pairingSection').classList.add('hidden');
+                } else {
+                    updateConnectionStatus('disconnected', 'Pairing failed');
+                    showResult(false, `❌ Pairing failed: ${data.message}`);
+                }
+            } catch (error) {
+                updateConnectionStatus('disconnected', 'Connection error');
+                showResult(false, `❌ Pairing error: ${error.message}`);
+            }
+        }
+
+        async function testUSBConnection() {
+            const vendorId = document.getElementById('usbVendorId').value;
+            const productId = document.getElementById('usbProductId').value;
+            
+            if (!vendorId || !productId) {
+                showResult(false, 'Please enter Vendor ID and Product ID');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/test_usb_printer', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        vendor_id: vendorId,
+                        product_id: productId
+                    })
+                });
+                
+                const data = await response.json();
+                showResult(data.success, data.message);
+            } catch (error) {
+                showResult(false, `USB test failed: ${error.message}`);
+            }
+        }
+
+        async function testPrinter() {
+            const printerType = document.querySelector('input[name="printer_type"]:checked').value;
+            
+            if (printerType === 'bluetooth' && connectionStatus !== 'connected') {
+                showResult(false, 'Please pair with a Bluetooth device first');
+                return;
+            }
+            
+            try {
+                let testData = {};
+                
+                if (printerType === 'bluetooth') {
+                    testData = {
+                        type: 'bluetooth',
+                        address: selectedDevice.address
+                    };
+                } else {
+                    testData = {
+                        type: 'usb',
+                        vendor_id: document.getElementById('usbVendorId').value,
+                        product_id: document.getElementById('usbProductId').value
+                    };
+                }
+                
+                const response = await fetch('/test_printer_connection', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(testData)
+                });
+                
+                const data = await response.json();
+                showResult(data.success, data.message);
+            } catch (error) {
+                showResult(false, `Test failed: ${error.message}`);
+            }
+        }
+
+        async function printReceipt() {
+            const printerType = document.querySelector('input[name="printer_type"]:checked').value;
+            const printBtn = document.getElementById('printBtn');
+            
+            if (printerType === 'bluetooth' && connectionStatus !== 'connected') {
+                showResult(false, 'Please pair with a Bluetooth device first');
+                return;
+            }
+            
+            printBtn.disabled = true;
+            printBtn.textContent = '🖨️ Printing...';
+            
+            try {
+                let printData = {
+                    invoice_id: {{ invoice.id }},
+                    paper_size: '48mm'
+                };
+                
+                if (printerType === 'bluetooth') {
+                    printData.type = 'bluetooth';
+                    printData.address = selectedDevice.address;
+                } else {
+                    printData.type = 'usb';
+                    printData.vendor_id = document.getElementById('usbVendorId').value;
+                    printData.product_id = document.getElementById('usbProductId').value;
+                }
+                
+                const response = await fetch('/print_thermal_receipt', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(printData)
+                });
+                
+                const data = await response.json();
+                showResult(data.success, data.message);
+                
+            }
+            catch (error) {
+                showResult(false, `Print failed: ${error.message}`);
+            }
+            finally {
+                printBtn.disabled = false;
+                printBtn.textContent = '🖨️ Print Receipt';
+            }
+        }
+    </script>
+</body>
+</html>

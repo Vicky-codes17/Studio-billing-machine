@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete Invoice #{{ invoice.invoice_no }} - Confirmation</title>
+    <style>
+        :root {
+            --primary-color: #4f46e5;
+            --secondary-color: #7c3aed;
+            --danger-color: #ef4444;
+            --warning-color: #f59e0b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--danger-color) 0%, #dc2626 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 600px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--danger-color) 0%, #dc2626 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .content {
+            padding: 40px;
+            text-align: center;
+        }
+
+        .warning-icon {
+            font-size: 80px;
+            color: var(--danger-color);
+            margin-bottom: 20px;
+        }
+
+        .invoice-details {
+            background: #f8fafc;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 25px 0;
+            border-left: 5px solid var(--danger-color);
+        }
+
+        .invoice-details h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+            font-weight: 600;
+            color: var(--danger-color);
+            font-size: 18px;
+        }
+
+        .warning-text {
+            background: #fef3cd;
+            border: 1px solid #facc15;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 25px 0;
+            color: #92400e;
+        }
+
+        .warning-text strong {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-danger {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .button-group {
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚠️ Delete Invoice Confirmation</h1>
+            <p>This action cannot be undone!</p>
+        </div>
+        
+        <div class="content">
+            <div class="warning-icon">🗑️</div>
+            
+            <div class="invoice-details">
+                <h3>Invoice Details</h3>
+                <div class="detail-row">
+                    <span>Invoice Number:</span>
+                    <span>#{{ invoice.invoice_no }}</span>
+                </div>
+                <div class="detail-row">
+                    <span>Customer:</span>
+                    <span>{{ invoice.customer_name }}</span>
+                </div>
+                <div class="detail-row">
+                    <span>Date:</span>
+                    <span>{{ invoice.date.strftime('%d/%m/%Y %H:%M') }}</span>
+                </div>
+                <div class="detail-row">
+                    <span>Items:</span>
+                    <span>{{ invoice.items.count() }} item(s)</span>
+                </div>
+                <div class="detail-row">
+                    <span>Total Amount:</span>
+                    <span>₹{{ "%.2f"|format(invoice.grand_total) }}</span>
+                </div>
+            </div>
+
+            <div class="warning-text">
+                <strong>⚠️ Warning:</strong>
+                This will permanently delete the invoice and all associated data from the database. 
+                This action cannot be undone. Please make sure you have backed up any important data before proceeding.
+            </div>
+
+            <div class="button-group">
+                <form method="POST" action="{{ url_for('delete_invoice', invoice_id=invoice.id) }}" style="display: inline;">
+                    <button type="submit" class="btn btn-danger" onclick="return confirm('Are you absolutely sure? Type DELETE to confirm:')">
+                        🗑️ Yes, Delete Invoice
+                    </button>
+                </form>
+                <a href="{{ url_for('invoices_list') }}" class="btn btn-secondary">
+                    ❌ Cancel
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Add extra confirmation
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const confirmation = prompt('Type "DELETE" to confirm deletion:');
+            if (confirmation !== 'DELETE') {
+                e.preventDefault();
+                alert('Deletion cancelled. You must type "DELETE" exactly.');
+            }
+        });
+    </script>
+</body>
+</html>
